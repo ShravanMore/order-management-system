@@ -22,5 +22,5 @@ export function usePageTitle(): string {
     if (pathname.startsWith(key + "/")) return title;
   }
 
-  return "OMS";
+  return "Sadguru Electro Medical";
 }

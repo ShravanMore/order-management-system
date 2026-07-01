@@ -101,7 +101,7 @@ export default function LoginPage() {
             Sign in
           </CardTitle>
           <CardDescription>
-            Enter your credentials to access the Order Management System
+            Enter your credentials to access Sadguru Electro Medical Order Management System
           </CardDescription>
         </CardHeader>
         <CardContent>

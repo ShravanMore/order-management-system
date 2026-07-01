@@ -52,7 +52,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
     <div className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground">
       {/* Logo */}
       <div className="flex h-16 items-center px-6">
-        <span className="text-lg font-bold tracking-tight">⚕ OMS</span>
+        <span className="text-sm font-bold tracking-tight">⚕ Sadguru Electro Medical</span>
       </div>
 
       <Separator />

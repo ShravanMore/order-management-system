@@ -9,8 +9,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "OMS - Order Management System",
-  description: "Physiotherapy Equipment Order Management System",
+  title: "Sadguru Electro Medical - Order Management System",
+  description: "Sadguru Electro Medical - Physiotherapy Equipment Order Management System",
 };
 
 export default function RootLayout({

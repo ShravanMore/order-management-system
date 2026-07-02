@@ -20,6 +20,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { PRODUCT_CATEGORIES } from "@/components/products/product-form-dialog";
+import { cn } from "@/lib/utils";
 import type { Product } from "@/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -29,6 +30,16 @@ interface ProductListResponse {
   total_count: number;
   page: number;
   page_size: number;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function fmt(v: string | number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(Number(v));
 }
 
 // ─── Stock badge ──────────────────────────────────────────────────────────────
@@ -319,6 +330,78 @@ export default function ProductsPage() {
               : undefined
           }
           toolbar={toolbar}
+          mobileCard={(product) => (
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{product.name}</p>
+                  <p className="text-xs text-muted-foreground">{product.sku}</p>
+                </div>
+                {product.is_active ? (
+                  <span className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                    Active
+                  </span>
+                ) : (
+                  <span className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                    Inactive
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <div>
+                  <p className="font-semibold tabular-nums">{fmt(product.price)}</p>
+                  <p className="text-xs text-muted-foreground">{product.category}</p>
+                </div>
+                <div className="text-right">
+                  <p className={cn(
+                    "text-sm font-medium",
+                    product.stock_quantity <= product.low_stock_threshold
+                      ? "text-destructive"
+                      : "text-muted-foreground"
+                  )}>
+                    {product.stock_quantity} {product.unit}(s)
+                  </p>
+                  {product.stock_quantity <= product.low_stock_threshold && (
+                    <p className="text-xs text-destructive">Low stock</p>
+                  )}
+                </div>
+              </div>
+              {isAdmin && (
+                <div className="pt-1 flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 h-8 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditProduct(product);
+                      setFormOpen(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  {product.is_active && (
+                    <ConfirmDialog
+                      trigger={
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 text-xs text-destructive hover:text-destructive"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Deactivate
+                        </Button>
+                      }
+                      title="Deactivate Product"
+                      description={`Are you sure you want to deactivate "${product.name}"?`}
+                      confirmLabel="Deactivate"
+                      onConfirm={async () => { await deactivateMutation.mutateAsync(product.id); }}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         />
       </div>
 

@@ -1,14 +1,20 @@
 from __future__ import annotations
 
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class EmployeeBase(BaseModel):
     full_name: str = Field(..., max_length=255, min_length=1)
-    email: EmailStr
+    email: str = Field(..., max_length=320)  # String to allow local domains like .local
     phone: str | None = Field(None, max_length=20)
     avatar_url: str | None = Field(None, max_length=1024)
+    
+    @field_validator("email")
+    @classmethod
+    def normalise_email(cls, v: str) -> str:
+        """Normalize email to lowercase and strip whitespace."""
+        return v.strip().lower()
 
 
 class EmployeeCreate(EmployeeBase):
@@ -17,9 +23,17 @@ class EmployeeCreate(EmployeeBase):
 
 class EmployeeUpdate(BaseModel):
     full_name: str | None = Field(None, max_length=255, min_length=1)
-    email: EmailStr | None = None
+    email: str | None = Field(None, max_length=320)
     phone: str | None = Field(None, max_length=20)
     avatar_url: str | None = Field(None, max_length=1024)
+    
+    @field_validator("email")
+    @classmethod
+    def normalise_email(cls, v: str | None) -> str | None:
+        """Normalize email to lowercase and strip whitespace."""
+        if v is None:
+            return None
+        return v.strip().lower()
 
 
 class EmployeeResponse(EmployeeBase):

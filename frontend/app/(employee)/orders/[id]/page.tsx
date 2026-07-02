@@ -126,7 +126,7 @@ function AssignEmployeePanel({
 }: { orderId: number; currentAssigneeId: number | null }) {
   const queryClient = useQueryClient();
 
-  const { data: employees } = useQuery({
+  const { data: employees, isLoading, error } = useQuery({
     queryKey: ["employees-list"],
     queryFn: () =>
       apiClient
@@ -134,6 +134,14 @@ function AssignEmployeePanel({
         .then((r) => r.data),
     staleTime: 60_000,
   });
+
+  // Debug logging
+  if (error) {
+    console.error("Failed to load employees:", error);
+  }
+  if (employees) {
+    console.log("Loaded employees:", employees.items.length, employees.items);
+  }
 
   const mutation = useMutation({
     mutationFn: (assignedToId: number | null) =>
@@ -154,6 +162,7 @@ function AssignEmployeePanel({
     <Select
       value={currentAssigneeId?.toString() ?? "unassigned"}
       onValueChange={(v) => mutation.mutate(v === "unassigned" ? null : Number(v))}
+      disabled={isLoading}
     >
       <SelectTrigger className="h-9 w-full">
         <SelectValue />
@@ -162,6 +171,16 @@ function AssignEmployeePanel({
         <SelectItem value="unassigned">
           <span className="text-muted-foreground">Unassigned</span>
         </SelectItem>
+        {isLoading && (
+          <SelectItem value="loading" disabled>
+            <span className="text-muted-foreground">Loading employees...</span>
+          </SelectItem>
+        )}
+        {!isLoading && (employees?.items ?? []).length === 0 && (
+          <SelectItem value="no-employees" disabled>
+            <span className="text-muted-foreground">No active employees found</span>
+          </SelectItem>
+        )}
         {(employees?.items ?? []).map((e) => (
           <SelectItem key={e.id} value={String(e.id)}>
             {e.full_name}

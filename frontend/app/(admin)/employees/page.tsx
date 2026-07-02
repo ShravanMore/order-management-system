@@ -71,7 +71,7 @@ export default function EmployeesPage() {
   const [editEmployee, setEditEmployee] = useState<Employee | undefined>();
 
   // ── Fetch ────────────────────────────────────────────────────────────────
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["employees", { search, page, pageSize }],
     queryFn: () => {
       const params = new URLSearchParams({
@@ -84,7 +84,18 @@ export default function EmployeesPage() {
         .then((r) => r.data);
     },
     placeholderData: (prev) => prev,
+    retry: 1, // Only retry once
   });
+
+  // Log errors for debugging
+  if (error) {
+    console.error("Employees API Error:", error);
+    const axiosError = error as any;
+    if (axiosError.response) {
+      console.error("Status:", axiosError.response.status);
+      console.error("Data:", axiosError.response.data);
+    }
+  }
 
   // ── Deactivate mutation ──────────────────────────────────────────────────
   const deactivateMutation = useMutation({
@@ -208,7 +219,17 @@ export default function EmployeesPage() {
           rowKey={(r) => r.id}
           isLoading={isLoading}
           isError={isError}
-          errorMessage="Could not load employees. Please try again."
+          errorMessage={
+            error 
+              ? `Failed to load employees: ${
+                  (error as any).response?.status === 401 
+                    ? "Please logout and login again (session expired)" 
+                    : (error as any).response?.status === 403
+                    ? "Access denied. Admin role required."
+                    : (error as any).response?.data?.detail?.message || (error as any).message || "Please try again."
+                }`
+              : "Could not load employees. Please try again."
+          }
           searchValue={search}
           searchPlaceholder="Search by name or email…"
           onSearchChange={(v) => { setSearch(v); setPage(1); }}
@@ -237,6 +258,60 @@ export default function EmployeesPage() {
               Add Employee
             </Button>
           }
+          mobileCard={(employee) => (
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm">{employee.full_name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{employee.email}</p>
+                </div>
+                {employee.is_active ? (
+                  <span className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                    Active
+                  </span>
+                ) : (
+                  <span className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                    Inactive
+                  </span>
+                )}
+              </div>
+              {employee.phone && (
+                <p className="text-xs text-muted-foreground">{employee.phone}</p>
+              )}
+              <div className="pt-1 flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 h-8 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditEmployee(employee);
+                    setFormOpen(true);
+                  }}
+                >
+                  Edit
+                </Button>
+                {employee.is_active && (
+                  <ConfirmDialog
+                    trigger={
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 text-xs text-destructive hover:text-destructive"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Deactivate
+                      </Button>
+                    }
+                    title="Deactivate Employee"
+                    description={`Are you sure you want to deactivate "${employee.full_name}"?`}
+                    confirmLabel="Deactivate"
+                    onConfirm={async () => { await deactivateMutation.mutateAsync(employee.id); }}
+                  />
+                )}
+              </div>
+            </div>
+          )}
         />
       </div>
 

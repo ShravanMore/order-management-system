@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -28,6 +29,10 @@ import type { Dealer, Product, Order } from "@/types";
 
 interface DealerListResponse  { items: Dealer[];  total_count: number; }
 interface ProductListResponse { items: Product[]; total_count: number; }
+interface EmployeeListResponse {
+  items: { id: number; full_name: string; email: string; is_active: boolean }[];
+  total_count: number;
+}
 
 interface LineItem {
   product: Product;
@@ -38,6 +43,7 @@ interface LineItem {
 
 const schema = z.object({
   dealer_id:              z.number({ required_error: "Select a dealer" }).min(1, "Select a dealer"),
+  assigned_to_id:         z.number().optional(),
   order_date:             z.date({ required_error: "Order date is required" }),
   expected_delivery_date: z.date().optional(),
   notes:                  z.string().optional(),
@@ -262,6 +268,16 @@ export default function NewOrderPage() {
   const [orderDateOpen, setOrderDateOpen]    = useState(false);
   const [deliveryDateOpen, setDeliveryDateOpen] = useState(false);
 
+  // Fetch employees list for assignment
+  const { data: employees } = useQuery({
+    queryKey: ["employees-list"],
+    queryFn: () =>
+      apiClient
+        .get<EmployeeListResponse>("/employees?page=1&page_size=50")
+        .then((r) => r.data),
+    staleTime: 60_000,
+  });
+
   const {
     control, handleSubmit, watch,
     formState: { errors },
@@ -316,6 +332,7 @@ export default function NewOrderPage() {
     mutationFn: (data: FormData) =>
       apiClient.post<Order>("/orders", {
         dealer_id:              data.dealer_id,
+        assigned_to_id:         data.assigned_to_id ?? null,
         order_date:             data.order_date.toISOString(),
         expected_delivery_date: data.expected_delivery_date?.toISOString() ?? null,
         notes:                  data.notes ?? null,
@@ -376,6 +393,35 @@ export default function NewOrderPage() {
             {errors.dealer_id && (
               <p className="text-xs text-destructive">{errors.dealer_id.message}</p>
             )}
+          </div>
+
+          {/* Assign To Employee */}
+          <div className="space-y-1">
+            <Label>Assign To <span className="text-xs text-muted-foreground">(optional)</span></Label>
+            <Controller
+              control={control}
+              name="assigned_to_id"
+              render={({ field }) => (
+                <Select
+                  value={field.value?.toString() ?? "unassigned"}
+                  onValueChange={(v) => field.onChange(v === "unassigned" ? undefined : Number(v))}
+                >
+                  <SelectTrigger className="h-9 w-full">
+                    <SelectValue placeholder="Select employee…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="unassigned">
+                      <span className="text-muted-foreground">Unassigned</span>
+                    </SelectItem>
+                    {(employees?.items ?? []).map((e) => (
+                      <SelectItem key={e.id} value={String(e.id)}>
+                        {e.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

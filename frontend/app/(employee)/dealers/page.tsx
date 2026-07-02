@@ -260,6 +260,63 @@ export default function DealersPage() {
               : undefined
           }
           toolbar={toolbar}
+          mobileCard={(dealer) => (
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm">{dealer.name}</p>
+                  <p className="text-xs text-muted-foreground">{dealer.contact_person}</p>
+                </div>
+                {dealer.is_active ? (
+                  <span className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                    Active
+                  </span>
+                ) : (
+                  <span className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                    Inactive
+                  </span>
+                )}
+              </div>
+              <div className="space-y-1 text-sm text-muted-foreground">
+                <p className="text-xs">{dealer.phone}</p>
+                <p className="text-xs">{dealer.city}, {dealer.state}</p>
+              </div>
+              {isAdmin && (
+                <div className="pt-1 flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 h-8 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditDealer(dealer);
+                      setFormOpen(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  {dealer.is_active && (
+                    <ConfirmDialog
+                      trigger={
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 text-xs text-destructive hover:text-destructive"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Deactivate
+                        </Button>
+                      }
+                      title="Deactivate Dealer"
+                      description={`Are you sure you want to deactivate "${dealer.name}"?`}
+                      confirmLabel="Deactivate"
+                      onConfirm={async () => { await deactivateMutation.mutateAsync(dealer.id); }}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         />
       </div>
 

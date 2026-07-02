@@ -12,6 +12,7 @@ import apiClient from "@/lib/api-client";
 import { useAuth } from "@/hooks/use-auth";
 import { DataTable, type ColumnDef } from "@/components/shared/data-table";
 import { StatusBadge, nextStatuses } from "@/components/orders/status-badge";
+import { OrderDetailModal } from "@/components/orders/order-detail-modal";
 import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -177,6 +178,9 @@ export default function OrdersPage() {
 
   // Quick status-update dialog
   const [statusOrder, setStatusOrder] = useState<Order | null>(null);
+  
+  // Order detail modal
+  const [detailOrderId, setDetailOrderId] = useState<number | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["orders", { viewMode, statusFilter, dateRange, page, pageSize, isAdmin }],
@@ -220,12 +224,12 @@ export default function OrdersPage() {
       header: "Order #",
       sortable: true,
       cell: (row) => (
-        <Link
-          href={`/orders/${row.id}`}
+        <button
+          onClick={() => setDetailOrderId(row.id)}
           className="font-mono text-xs font-semibold text-primary hover:underline"
         >
           {row.order_number}
-        </Link>
+        </button>
       ),
     },
     {
@@ -443,6 +447,32 @@ export default function OrdersPage() {
               : undefined
           }
           toolbar={toolbar}
+          mobileCard={(order) => (
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <button
+                  onClick={() => setDetailOrderId(order.id)}
+                  className="font-mono text-sm font-semibold text-primary hover:underline text-left"
+                >
+                  {order.order_number}
+                </button>
+                <StatusBadge status={order.status} />
+              </div>
+              <div className="space-y-1 text-sm">
+                <p className="font-medium">{order.dealer_name}</p>
+                <p className="text-muted-foreground">
+                  {order.assigned_to_name ?? "Unassigned"}
+                </p>
+                <div className="flex justify-between items-center pt-1">
+                  <span className="text-xs text-muted-foreground">
+                    {format(new Date(order.order_date), "dd MMM yyyy")}
+                  </span>
+                  <span className="font-semibold tabular-nums">{fmt(order.total_amount)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          onRowClick={(order) => setDetailOrderId(order.id)}
         />
       </div>
 
@@ -450,6 +480,12 @@ export default function OrdersPage() {
       <QuickStatusDialog
         order={statusOrder}
         onClose={() => setStatusOrder(null)}
+      />
+
+      {/* Order detail modal */}
+      <OrderDetailModal
+        orderId={detailOrderId}
+        onClose={() => setDetailOrderId(null)}
       />
     </>
   );

@@ -90,6 +90,12 @@ export interface DataTableProps<T> {
   // Slot rendered to the right of the search input (e.g. "Add" button)
   toolbar?: React.ReactNode;
 
+  // Mobile card view
+  /** Custom mobile card renderer (shows on <md breakpoint) */
+  mobileCard?: (row: T) => React.ReactNode;
+  /** Click handler for mobile cards (optional) */
+  onRowClick?: (row: T) => void;
+
   className?: string;
 }
 
@@ -130,6 +136,8 @@ export function DataTable<T>({
   emptyActionLabel,
   onEmptyAction,
   toolbar,
+  mobileCard,
+  onRowClick,
   className,
 }: DataTableProps<T>) {
   // ── Sorting handler ─────────────────────────────────────────────────────────
@@ -177,8 +185,8 @@ export function DataTable<T>({
         </div>
       )}
 
-      {/* Table */}
-      <div className="rounded-md border">
+      {/* Desktop Table (hidden on mobile if mobileCard provided) */}
+      <div className={cn("rounded-md border", mobileCard && "hidden md:block")}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -247,6 +255,46 @@ export function DataTable<T>({
           </TableBody>
         </Table>
       </div>
+
+      {/* Mobile Card View */}
+      {mobileCard && (
+        <div className="md:hidden space-y-3">
+          {/* Loading */}
+          {isLoading && (
+            <LoadingState variant="cards" count={pagination?.pageSize ?? 5} />
+          )}
+
+          {/* Error */}
+          {!isLoading && isError && (
+            <ErrorState message={errorMessage} />
+          )}
+
+          {/* Empty */}
+          {!isLoading && !isError && data.length === 0 && (
+            <EmptyState
+              icon={emptyIcon}
+              heading={emptyHeading}
+              description={emptyDescription}
+              actionLabel={emptyActionLabel}
+              onAction={onEmptyAction}
+            />
+          )}
+
+          {/* Data cards */}
+          {!isLoading && !isError && data.map((row) => (
+            <div
+              key={rowKey(row)}
+              onClick={() => onRowClick?.(row)}
+              className={cn(
+                "rounded-md border bg-card p-4",
+                onRowClick && "cursor-pointer hover:bg-accent/50 transition-colors"
+              )}
+            >
+              {mobileCard(row)}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Pagination */}
       {pagination && !isLoading && !isError && (

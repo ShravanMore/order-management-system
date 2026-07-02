@@ -33,8 +33,6 @@ const adminNav: NavItem[] = [
 
 const employeeNav: NavItem[] = [
   { label: "Orders", href: "/orders", icon: ClipboardList },
-  { label: "Products", href: "/products", icon: Package },
-  { label: "Dealers", href: "/dealers", icon: Building2 },
   { label: "Profile", href: "/profile", icon: UserCircle },
 ];
 

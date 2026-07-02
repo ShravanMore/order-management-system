@@ -149,6 +149,10 @@ async def create_order(
     # Validate dealer
     await _validate_dealer_exists(db, data.dealer_id)
     
+    # Validate assigned_to if provided
+    if data.assigned_to_id is not None:
+        await _validate_user_exists(db, data.assigned_to_id)
+    
     # Prepare items list for validation
     items_data = [(item.product_id, item.quantity) for item in data.items]
     
@@ -163,6 +167,7 @@ async def create_order(
         order_number=order_number,
         dealer_id=data.dealer_id,
         created_by_id=created_by_id,
+        assigned_to_id=data.assigned_to_id,
         order_date=data.order_date,
         expected_delivery_date=data.expected_delivery_date,
         notes=data.notes,

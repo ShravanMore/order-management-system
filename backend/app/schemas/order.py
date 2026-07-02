@@ -30,6 +30,7 @@ class OrderItemResponse(BaseModel):
 
 class OrderCreate(BaseModel):
     dealer_id: int = Field(..., ge=1)
+    assigned_to_id: int | None = None
     order_date: datetime
     expected_delivery_date: datetime | None = None
     notes: str | None = None

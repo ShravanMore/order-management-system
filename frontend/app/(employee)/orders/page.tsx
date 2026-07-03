@@ -264,15 +264,20 @@ export default function OrdersPage() {
       ),
       className: "hidden sm:table-cell",
     },
-    {
-      key: "total_amount",
-      header: "Amount",
-      sortable: true,
-      cell: (row) => (
-        <span className="text-sm font-medium tabular-nums">{fmt(row.total_amount)}</span>
-      ),
-      className: "text-right",
-    },
+    // Amount column - admin only
+    ...(isAdmin
+      ? [
+          {
+            key: "total_amount",
+            header: "Amount",
+            sortable: true,
+            cell: (row: Order) => (
+              <span className="text-sm font-medium tabular-nums">{fmt(row.total_amount)}</span>
+            ),
+            className: "text-right",
+          } satisfies ColumnDef<Order>,
+        ]
+      : []),
     // Quick status-update — shown for employees when the order is assigned to them
     // (or for admins on any order) and the order is not in a terminal state
     {
@@ -467,7 +472,9 @@ export default function OrdersPage() {
                   <span className="text-xs text-muted-foreground">
                     {format(new Date(order.order_date), "dd MMM yyyy")}
                   </span>
-                  <span className="font-semibold tabular-nums">{fmt(order.total_amount)}</span>
+                  {isAdmin && (
+                    <span className="font-semibold tabular-nums">{fmt(order.total_amount)}</span>
+                  )}
                 </div>
               </div>
             </div>

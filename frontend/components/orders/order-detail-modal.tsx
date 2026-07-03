@@ -382,10 +382,12 @@ export function OrderDetailModal({ orderId, onClose }: OrderDetailModalProps) {
                     <p>{format(new Date(order.completed_at), "dd MMM yyyy")}</p>
                   </div>
                 )}
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Total Amount</p>
-                  <p className="text-lg font-bold tabular-nums">{fmt(order.total_amount)}</p>
-                </div>
+                {isAdmin && (
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Total Amount</p>
+                    <p className="text-lg font-bold tabular-nums">{fmt(order.total_amount)}</p>
+                  </div>
+                )}
               </div>
               {order.notes && (
                 <div className="space-y-1">
@@ -421,12 +423,16 @@ export function OrderDetailModal({ orderId, onClose }: OrderDetailModalProps) {
                       <th className="px-4 py-3 text-right font-medium text-muted-foreground">
                         Qty
                       </th>
-                      <th className="px-4 py-3 text-right font-medium text-muted-foreground">
-                        Unit Price
-                      </th>
-                      <th className="px-4 py-3 text-right font-medium text-muted-foreground">
-                        Subtotal
-                      </th>
+                      {isAdmin && (
+                        <>
+                          <th className="px-4 py-3 text-right font-medium text-muted-foreground">
+                            Unit Price
+                          </th>
+                          <th className="px-4 py-3 text-right font-medium text-muted-foreground">
+                            Subtotal
+                          </th>
+                        </>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
@@ -441,25 +447,31 @@ export function OrderDetailModal({ orderId, onClose }: OrderDetailModalProps) {
                         <td className="px-4 py-3 text-right tabular-nums">
                           {item.quantity}
                         </td>
-                        <td className="px-4 py-3 text-right tabular-nums">
-                          {fmt(item.unit_price)}
-                        </td>
-                        <td className="px-4 py-3 text-right tabular-nums font-medium">
-                          {fmt(item.subtotal)}
-                        </td>
+                        {isAdmin && (
+                          <>
+                            <td className="px-4 py-3 text-right tabular-nums">
+                              {fmt(item.unit_price)}
+                            </td>
+                            <td className="px-4 py-3 text-right tabular-nums font-medium">
+                              {fmt(item.subtotal)}
+                            </td>
+                          </>
+                        )}
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot>
-                    <tr className="bg-muted/30">
-                      <td colSpan={3} className="px-4 py-3 text-right font-medium">
-                        Total
-                      </td>
-                      <td className="px-4 py-3 text-right text-lg font-bold tabular-nums">
-                        {fmt(order.total_amount)}
-                      </td>
-                    </tr>
-                  </tfoot>
+                  {isAdmin && (
+                    <tfoot>
+                      <tr className="bg-muted/30">
+                        <td colSpan={3} className="px-4 py-3 text-right font-medium">
+                          Total
+                        </td>
+                        <td className="px-4 py-3 text-right text-lg font-bold tabular-nums">
+                          {fmt(order.total_amount)}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  )}
                 </table>
               </div>
             </TabsContent>
@@ -647,7 +659,9 @@ export function OrderDetailModal({ orderId, onClose }: OrderDetailModalProps) {
                     <span>
                       {item.product_name} × {item.quantity}
                     </span>
-                    <span className="font-medium">{fmt(item.subtotal)}</span>
+                    {isAdmin && (
+                      <span className="font-medium">{fmt(item.subtotal)}</span>
+                    )}
                   </div>
                 ))}
               </div>

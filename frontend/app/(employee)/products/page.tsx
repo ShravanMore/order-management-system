@@ -145,17 +145,22 @@ export default function ProductsPage() {
       ),
       className: "hidden md:table-cell",
     },
-    {
-      key: "price",
-      header: "Price",
-      sortable: true,
-      cell: (row) => (
-        <span className="tabular-nums text-sm font-medium">
-          ₹{Number(row.price).toLocaleString("en-IN")}
-        </span>
-      ),
-      className: "text-right",
-    },
+    // Price column - admin only
+    ...(isAdmin
+      ? [
+          {
+            key: "price",
+            header: "Price",
+            sortable: true,
+            cell: (row: Product) => (
+              <span className="tabular-nums text-sm font-medium">
+                ₹{Number(row.price).toLocaleString("en-IN")}
+              </span>
+            ),
+            className: "text-right",
+          } satisfies ColumnDef<Product>,
+        ]
+      : []),
     {
       key: "stock_quantity",
       header: "Stock",
@@ -349,7 +354,9 @@ export default function ProductsPage() {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <div>
-                  <p className="font-semibold tabular-nums">{fmt(product.price)}</p>
+                  {isAdmin && (
+                    <p className="font-semibold tabular-nums">{fmt(product.price)}</p>
+                  )}
                   <p className="text-xs text-muted-foreground">{product.category}</p>
                 </div>
                 <div className="text-right">

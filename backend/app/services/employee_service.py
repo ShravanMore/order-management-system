@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from sqlalchemy import select, func, and_, or_
+from datetime import datetime
+from decimal import Decimal
+from sqlalchemy import select, func, and_, or_, extract
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 
@@ -194,4 +196,68 @@ async def get_employee_workload(db: AsyncSession, employee_id: int) -> dict:
         "ongoing_orders": ongoing_result.scalar_one(),
         "completed_orders": completed_result.scalar_one(),
         "total_assigned_orders": total_result.scalar_one(),
+    }
+
+
+async def calculate_salary_for_month(
+    db: AsyncSession,
+    employee_id: int,
+    year: int,
+    month: int
+) -> dict:
+    """
+    Calculate salary breakdown for an employee for a specific month.
+    Returns:
+        - base_salary
+        - commission_rate
+        - completed_orders_count
+        - completed_orders_value
+        - commission_earned
+        - total_salary
+        - has_salary_setup (False if base_salary or commission_percentage not set)
+    """
+    employee = await get_employee_by_id(db, employee_id)
+    
+    # Check if salary setup exists
+    has_salary_setup = (
+        employee.base_salary is not None 
+        and employee.commission_percentage is not None
+    )
+    
+    base_salary = employee.base_salary or Decimal("0")
+    commission_rate = employee.commission_percentage or Decimal("0")
+    
+    # Calculate commission from completed orders in the specified month
+    # completed_at is when the order was marked as completed
+    query = (
+        select(func.count(Order.id), func.coalesce(func.sum(Order.total_amount), 0))
+        .where(
+            and_(
+                Order.assigned_to_id == employee_id,
+                Order.status == OrderStatus.completed,
+                extract('year', Order.completed_at) == year,
+                extract('month', Order.completed_at) == month,
+            )
+        )
+    )
+    
+    result = await db.execute(query)
+    row = result.one()
+    completed_orders_count = row[0]
+    completed_orders_value = Decimal(str(row[1]))
+    
+    # Calculate commission
+    commission_earned = (completed_orders_value * commission_rate) / Decimal("100")
+    total_salary = base_salary + commission_earned
+    
+    return {
+        "year": year,
+        "month": month,
+        "base_salary": str(base_salary),
+        "commission_rate": str(commission_rate),
+        "completed_orders_count": completed_orders_count,
+        "completed_orders_value": str(completed_orders_value),
+        "commission_earned": str(commission_earned),
+        "total_salary": str(total_salary),
+        "has_salary_setup": has_salary_setup,
     }

@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user
 from app.core.security import verify_password, get_password_hash
 from app.db.session import get_db
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.auth import UserProfile, MessageResponse
 from app.schemas.profile import ProfileUpdateRequest, PasswordChangeRequest
+from app.schemas.employee import SalaryBreakdownResponse
+from app.services import employee_service
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
@@ -91,3 +94,42 @@ async def change_my_password(
     await db.flush()
     
     return MessageResponse(message="Password changed successfully.")
+
+
+
+@router.get(
+    "/me/salary",
+    response_model=SalaryBreakdownResponse,
+    summary="Get salary breakdown for current month (Employee Only)",
+)
+async def get_my_salary(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    year: int | None = Query(None, description="Year (defaults to current year)"),
+    month: int | None = Query(None, ge=1, le=12, description="Month 1-12 (defaults to current month)"),
+) -> SalaryBreakdownResponse:
+    """
+    Get salary breakdown for the authenticated employee for a specific month.
+    Only employees can access their own salary information.
+    Defaults to current month if year/month not specified.
+    """
+    # Only employees can view salary
+    if current_user.role != UserRole.employee:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "error": "forbidden",
+                "message": "Only employees can view salary information."
+            }
+        )
+    
+    # Default to current month if not specified
+    now = datetime.now()
+    target_year = year if year is not None else now.year
+    target_month = month if month is not None else now.month
+    
+    salary_data = await employee_service.calculate_salary_for_month(
+        db, current_user.id, target_year, target_month
+    )
+    
+    return SalaryBreakdownResponse(**salary_data)

@@ -32,6 +32,16 @@ const createSchema = z.object({
     .string()
     .min(8, "Password must be at least 8 characters")
     .max(128),
+  base_salary: z
+    .string()
+    .regex(/^\d*\.?\d*$/, "Enter a valid number")
+    .optional()
+    .or(z.literal("")),
+  commission_percentage: z
+    .string()
+    .regex(/^\d*\.?\d*$/, "Enter a valid percentage")
+    .optional()
+    .or(z.literal("")),
 });
 
 const editSchema = z.object({
@@ -40,6 +50,16 @@ const editSchema = z.object({
   phone:     z
     .string()
     .regex(/^[+\d\s\-().]{7,20}$/, "Enter a valid phone number")
+    .optional()
+    .or(z.literal("")),
+  base_salary: z
+    .string()
+    .regex(/^\d*\.?\d*$/, "Enter a valid number")
+    .optional()
+    .or(z.literal("")),
+  commission_percentage: z
+    .string()
+    .regex(/^\d*\.?\d*$/, "Enter a valid percentage")
     .optional()
     .or(z.literal("")),
 });
@@ -75,7 +95,14 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: EmployeeFor
     formState: { errors },
   } = useForm<CreateFormData>({
     resolver: zodResolver(isEdit ? editSchema : createSchema) as any,
-    defaultValues: { full_name: "", email: "", phone: "", password: "" },
+    defaultValues: { 
+      full_name: "", 
+      email: "", 
+      phone: "", 
+      password: "",
+      base_salary: "",
+      commission_percentage: "",
+    },
   });
 
   useEffect(() => {
@@ -85,9 +112,18 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: EmployeeFor
           full_name: employee.full_name,
           email:     employee.email,
           phone:     employee.phone ?? "",
+          base_salary: employee.base_salary ?? "",
+          commission_percentage: employee.commission_percentage ?? "",
         });
       } else {
-        reset({ full_name: "", email: "", phone: "", password: "" });
+        reset({ 
+          full_name: "", 
+          email: "", 
+          phone: "", 
+          password: "",
+          base_salary: "",
+          commission_percentage: "1.00",
+        });
       }
     }
   }, [open, employee, reset]);
@@ -98,6 +134,8 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: EmployeeFor
         full_name: data.full_name,
         email:     data.email,
         phone:     data.phone || null,
+        base_salary: data.base_salary ? parseFloat(data.base_salary) : null,
+        commission_percentage: data.commission_percentage ? parseFloat(data.commission_percentage) : null,
         ...(isEdit ? {} : { password: data.password }),
       };
       return isEdit
@@ -155,6 +193,37 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: EmployeeFor
             </Label>
             <Input id="phone" type="tel" {...register("phone")} placeholder="+1-555-0101" />
             <FieldError message={errors.phone?.message} />
+          </div>
+
+          {/* Base Salary */}
+          <div className="space-y-1">
+            <Label htmlFor="base_salary">
+              Base Salary (₹/month) <span className="text-xs text-muted-foreground">(optional)</span>
+            </Label>
+            <Input 
+              id="base_salary" 
+              type="text" 
+              {...register("base_salary")} 
+              placeholder="e.g. 25000" 
+            />
+            <FieldError message={(errors as any).base_salary?.message} />
+          </div>
+
+          {/* Commission Percentage */}
+          <div className="space-y-1">
+            <Label htmlFor="commission_percentage">
+              Commission (%) <span className="text-xs text-muted-foreground">(optional)</span>
+            </Label>
+            <Input 
+              id="commission_percentage" 
+              type="text" 
+              {...register("commission_percentage")} 
+              placeholder="e.g. 1.00" 
+            />
+            <FieldError message={(errors as any).commission_percentage?.message} />
+            <p className="text-xs text-muted-foreground">
+              Percentage of completed order value earned as commission
+            </p>
           </div>
 
           {/* Password — create mode only */}

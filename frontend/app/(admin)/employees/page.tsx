@@ -138,6 +138,25 @@ export default function EmployeesPage() {
       className: "hidden md:table-cell",
     },
     {
+      key: "compensation",
+      header: "Compensation",
+      cell: (row) => (
+        <div className="text-sm">
+          {row.base_salary ? (
+            <>
+              <p className="font-medium">₹{parseFloat(row.base_salary).toLocaleString('en-IN')}/mo</p>
+              {row.commission_percentage && (
+                <p className="text-xs text-muted-foreground">{row.commission_percentage}% commission</p>
+              )}
+            </>
+          ) : (
+            <span className="text-muted-foreground">Not set</span>
+          )}
+        </div>
+      ),
+      className: "hidden lg:table-cell",
+    },
+    {
       key: "workload",
       header: "Workload",
       cell: (row) => <WorkloadBadge employeeId={row.id} />,
@@ -277,6 +296,14 @@ export default function EmployeesPage() {
               </div>
               {employee.phone && (
                 <p className="text-xs text-muted-foreground">{employee.phone}</p>
+              )}
+              {employee.base_salary && (
+                <div className="text-xs">
+                  <p className="font-medium">₹{parseFloat(employee.base_salary).toLocaleString('en-IN')}/month</p>
+                  {employee.commission_percentage && (
+                    <p className="text-muted-foreground">{employee.commission_percentage}% commission</p>
+                  )}
+                </div>
               )}
               <div className="pt-1 flex gap-2">
                 <Button

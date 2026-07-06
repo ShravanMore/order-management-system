@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import enum
 from datetime import datetime
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, Enum, String, func
+from sqlalchemy import Boolean, DateTime, Enum, Numeric, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -33,6 +34,12 @@ class User(Base):
     phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
     avatar_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    base_salary: Mapped[Decimal | None] = mapped_column(
+        Numeric(12, 2), nullable=True, comment="Monthly base salary in ₹"
+    )
+    commission_percentage: Mapped[Decimal | None] = mapped_column(
+        Numeric(5, 2), nullable=True, default=1.00, comment="Commission % on completed orders"
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

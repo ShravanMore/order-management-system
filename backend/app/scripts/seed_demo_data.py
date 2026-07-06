@@ -41,6 +41,8 @@ async def seed_users(db: AsyncSession) -> dict[str, User]:
             "password": "Employee@123",
             "role": UserRole.employee,
             "phone": "+1-555-0101",
+            "base_salary": Decimal("25000.00"),
+            "commission_percentage": Decimal("1.00"),
         },
         {
             "full_name": "Michael Chen",
@@ -48,6 +50,8 @@ async def seed_users(db: AsyncSession) -> dict[str, User]:
             "password": "Employee@123",
             "role": UserRole.employee,
             "phone": "+1-555-0102",
+            "base_salary": Decimal("28000.00"),
+            "commission_percentage": Decimal("1.50"),
         },
         {
             "full_name": "Emily Rodriguez",
@@ -55,6 +59,8 @@ async def seed_users(db: AsyncSession) -> dict[str, User]:
             "password": "Employee@123",
             "role": UserRole.employee,
             "phone": "+1-555-0103",
+            "base_salary": Decimal("30000.00"),
+            "commission_percentage": Decimal("2.00"),
         },
         {
             "full_name": "David Kumar",
@@ -62,6 +68,8 @@ async def seed_users(db: AsyncSession) -> dict[str, User]:
             "password": "Employee@123",
             "role": UserRole.employee,
             "phone": "+1-555-0104",
+            "base_salary": Decimal("22000.00"),
+            "commission_percentage": Decimal("0.75"),
         },
     ]
     

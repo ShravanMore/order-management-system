@@ -192,6 +192,8 @@ export interface Employee {
   phone: string | null;
   avatar_url: string | null;
   is_active: boolean;
+  base_salary: string | null;
+  commission_percentage: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -203,4 +205,16 @@ export interface EmployeeWorkload {
   ongoing_orders: number;
   completed_orders: number;
   total_assigned_orders: number;
+}
+
+export interface SalaryBreakdown {
+  year: number;
+  month: number;
+  base_salary: string;
+  commission_rate: string;
+  completed_orders_count: number;
+  completed_orders_value: string;
+  commission_earned: string;
+  total_salary: string;
+  has_salary_setup: boolean;
 }

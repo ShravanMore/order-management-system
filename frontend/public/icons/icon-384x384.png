@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="384" height="384" viewBox="0 0 384 384" xmlns="http://www.w3.org/2000/svg">
+  <!-- Blue gradient background -->
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="384" height="384" fill="url(#grad)" rx="38.400000000000006"/>
+  
+  <!-- Medical cross symbol -->
+  <g fill="white">
+    <!-- Vertical bar -->
+    <rect 
+      x="163.2" 
+      y="96" 
+      width="57.599999999999994" 
+      height="192" 
+      rx="7.68"
+    />
+    <!-- Horizontal bar -->
+    <rect 
+      x="96" 
+      y="163.2" 
+      width="192" 
+      height="57.599999999999994" 
+      rx="7.68"
+    />
+  </g>
+  
+  <!-- Text "SEM" -->
+  <text 
+    x="192" 
+    y="345.6" 
+    font-family="Arial, sans-serif" 
+    font-size="46.08" 
+    font-weight="bold" 
+    fill="white" 
+    text-anchor="middle"
+  >SEM</text>
+</svg>

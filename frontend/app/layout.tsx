@@ -11,6 +11,22 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Sadguru Electro Medical - Order Management System",
   description: "Sadguru Electro Medical - Physiotherapy Equipment Order Management System",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Sadguru OMS",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 };
 
 export default function RootLayout({

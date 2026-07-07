@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate PWA Icons</title>
+</head>
+<body>
+    <h1>PWA Icon Generator</h1>
+    <p>Right-click each icon below and "Save Image As..." to the icons folder</p>
+    <div id="icons"></div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const container = document.getElementById('icons');
+
+        sizes.forEach(size => {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Blue gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#2563eb');
+            gradient.addColorStop(1, '#1d4ed8');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // White medical cross symbol
+            ctx.fillStyle = 'white';
+            const crossWidth = size * 0.15;
+            const crossHeight = size * 0.5;
+            const centerX = size / 2;
+            const centerY = size / 2;
+
+            // Vertical bar
+            ctx.fillRect(
+                centerX - crossWidth / 2,
+                centerY - crossHeight / 2,
+                crossWidth,
+                crossHeight
+            );
+
+            // Horizontal bar
+            ctx.fillRect(
+                centerX - crossHeight / 2,
+                centerY - crossWidth / 2,
+                crossHeight,
+                crossWidth
+            );
+
+            // Add text "SEM"
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.12}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('SEM', centerX, size - size * 0.1);
+
+            // Display
+            const div = document.createElement('div');
+            div.style.marginBottom = '20px';
+            div.innerHTML = `<h3>Icon ${size}x${size}</h3>`;
+            div.appendChild(canvas);
+            container.appendChild(div);
+
+            // Auto download
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `icon-${size}x${size}.png`;
+                // Uncomment to auto-download:
+                // a.click();
+            });
+        });
+    </script>
+</body>
+</html>

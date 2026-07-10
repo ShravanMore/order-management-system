@@ -10,8 +10,6 @@ const nextConfig: NextConfig = {
   ],
   // Empty turbopack config to silence warning
   turbopack: {},
-  // Output standalone for deployment
-  output: 'standalone',
 };
 
 export default withPWA({

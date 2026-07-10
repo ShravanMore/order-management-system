@@ -206,32 +206,32 @@ Copy the output and use it as `JWT_SECRET_KEY`.
 9. Once deployed (green status), **copy your backend URL**
    - Example: `https://sadguru-oms-backend.onrender.com`
 
-### 3.4 Run Database Migrations
+### 3.4 Automatic Database Setup
 
-Once backend is deployed:
+**Good news!** Migrations and admin user creation happen **automatically** on deployment.
 
-1. Go to your backend service in Render
-2. Click **"Shell"** tab (top navigation)
-3. Wait for shell to load
-4. Run these commands one by one:
+The app will:
+1. ✅ Run all database migrations (`alembic upgrade head`)
+2. ✅ Create the admin user (if not already exists)
+3. ✅ Start the API server
 
-```bash
-# Check if database connection works
-python -c "from app.db.session import engine; print('DB connected!')"
+**To verify it worked:**
 
-# Run migrations to create tables
-alembic upgrade head
+1. Wait for deployment to finish (3-5 minutes)
+2. Check the deployment logs:
+   - In Render dashboard, go to your backend service
+   - Click **"Logs"** tab
+   - Look for these messages:
+     ```
+     Running database migrations...
+     ✓ Database migrations completed successfully
+     ✓ Admin user created — email=your-email@example.com
+     Application startup complete
+     ```
 
-# Create admin user
-python -m app.scripts.seed_admin
+3. If you see errors in logs, they'll appear here too
 
-# (Optional) Add demo data for testing
-python -m app.scripts.seed_demo_data
-```
-
-**Expected output:**
-- Migrations: "Running upgrade -> b413b95d4fcc"
-- Admin user: "Admin user created successfully"
+**No Shell access needed!** Everything runs automatically.
 
 ### 3.5 Test Backend
 

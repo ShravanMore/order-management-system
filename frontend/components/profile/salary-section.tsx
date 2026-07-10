@@ -134,13 +134,8 @@ export function SalarySection() {
                 <span className="font-medium">{formatCurrency(salaryData.base_salary)} / month</span>
               </div>
 
-              <div className="flex items-start justify-between text-sm">
-                <div className="flex-1">
-                  <p className="text-muted-foreground">Commission Earned</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {salaryData.completed_orders_count} order{salaryData.completed_orders_count !== 1 ? 's' : ''} · {formatCurrency(salaryData.completed_orders_value)} · {salaryData.commission_rate}% rate
-                  </p>
-                </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Commission Earned</span>
                 <div className="flex items-center gap-1.5">
                   <TrendingUp className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
                   <span className="font-medium">{formatCurrency(salaryData.commission_earned)}</span>

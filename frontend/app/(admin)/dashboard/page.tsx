@@ -262,11 +262,13 @@ const recentOrdersColumns = [
     cell: (row: RecentOrderItem) => (
       <span className="text-sm">{row.dealer_name}</span>
     ),
+    className: "hidden sm:table-cell",
   },
   {
     key: "status",
     header: "Status",
     cell: (row: RecentOrderItem) => <StatusBadge status={row.status} />,
+    className: "hidden md:table-cell",
   },
   {
     key: "total_amount",
@@ -284,6 +286,7 @@ const recentOrdersColumns = [
         {new Date(row.order_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
       </span>
     ),
+    className: "hidden lg:table-cell",
   },
 ];
 
@@ -460,6 +463,23 @@ export default function DashboardPage() {
             errorMessage="Could not load recent orders."
             emptyHeading="No orders yet"
             emptyDescription="Orders will appear here once created."
+            mobileCard={(order) => (
+              <Link href={`/orders/${order.id}`} className="block space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-mono text-xs font-medium text-primary">{order.order_number}</p>
+                    <p className="text-sm font-medium truncate">{order.dealer_name}</p>
+                  </div>
+                  <StatusBadge status={order.status} />
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    {new Date(order.order_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                  </span>
+                  <span className="font-medium">{fmt(order.total_amount)}</span>
+                </div>
+              </Link>
+            )}
           />
         </CardContent>
       </Card>

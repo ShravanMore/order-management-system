@@ -1,3 +1,4 @@
+# Backend Python
 backend/.env
 backend/__pycache__/
 backend/**/__pycache__/
@@ -6,3 +7,39 @@ backend/.venv/
 backend/venv/
 *.egg-info/
 .pytest_cache/
+
+# Frontend Node
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.env.local
+frontend/.env.production
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/.vercel
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# Other
+.env
+.env.local
+.env.production

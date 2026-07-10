@@ -58,17 +58,17 @@
 
 5. **Build your connection string:**
    ```
-   postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=require
+   postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE?ssl=require
    ```
 
 **Example:**
 ```
-postgresql+asyncpg://avnadmin:xyz123password@pg-abc-def.aivencloud.com:12345/defaultdb?sslmode=require
+postgresql+asyncpg://avnadmin:xyz123password@pg-abc-def.aivencloud.com:12345/defaultdb?ssl=require
 ```
 
 **Important:** 
 - Change `postgresql://` to `postgresql+asyncpg://`
-- Add `?sslmode=require` at the end
+- Add `?ssl=require` at the end (NOT `sslmode=require`)
 - Save this connection string - you'll need it!
 
 ### 1.4 Allow Connections (Optional)
@@ -164,7 +164,7 @@ Click **"Add Environment Variable"** for each one:
 ```env
 DATABASE_URL
 (Paste your Aiven PostgreSQL connection string here)
-Example: postgresql+asyncpg://avnadmin:pass@host.aivencloud.com:12345/db?sslmode=require
+Example: postgresql+asyncpg://avnadmin:pass@host.aivencloud.com:12345/db?ssl=require
 
 JWT_SECRET_KEY
 (Generate random secret - see below)
@@ -446,7 +446,7 @@ git push
 **Check:**
 1. Aiven database is running (check Aiven dashboard)
 2. `DATABASE_URL` is correct
-3. Includes `?sslmode=require` at end
+3. Uses `?ssl=require` at end (NOT `sslmode=require`)
 4. Starts with `postgresql+asyncpg://` (not just `postgresql://`)
 
 **Fix:**

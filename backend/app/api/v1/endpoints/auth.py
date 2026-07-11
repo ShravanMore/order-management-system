@@ -55,18 +55,35 @@ async def login(
     body: LoginRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> TokenResponse:
+    # Debug logging
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Login attempt for email: {body.email}")
+    
     result = await db.execute(select(User).where(User.email == body.email))
     user: User | None = result.scalar_one_or_none()
-
-    if user is None or not verify_password(body.password, user.hashed_password):
+    
+    if user is None:
+        logger.warning(f"User not found: {body.email}")
+        raise _invalid_credentials()
+    
+    logger.info(f"User found: id={user.id}, email={user.email}, is_active={user.is_active}")
+    
+    password_valid = verify_password(body.password, user.hashed_password)
+    logger.info(f"Password verification result: {password_valid}")
+    
+    if not password_valid:
+        logger.warning(f"Invalid password for user: {body.email}")
         raise _invalid_credentials()
 
     if not user.is_active:
+        logger.warning(f"Inactive user attempted login: {body.email}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail={"error": "account_disabled", "message": "Your account has been disabled."},
         )
 
+    logger.info(f"Login successful for user: {body.email}")
     return TokenResponse(
         access_token=create_access_token(user.id, user.role.value),
         refresh_token=create_refresh_token(user.id, user.role.value),

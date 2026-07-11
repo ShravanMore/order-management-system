@@ -8,7 +8,6 @@ from app.api.v1.endpoints import (
     employees,
     dashboard,
     profile,
-    admin_reset,  # TEMPORARY - DELETE AFTER USE
 )
 
 api_router = APIRouter()
@@ -21,9 +20,6 @@ api_router.include_router(orders.router)
 api_router.include_router(employees.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(profile.router)
-
-# ⚠️ TEMPORARY - DELETE AFTER RESETTING ADMIN PASSWORD
-api_router.include_router(admin_reset.router)
 
 # Health (versioned)
 from fastapi.responses import JSONResponse  # noqa: E402
